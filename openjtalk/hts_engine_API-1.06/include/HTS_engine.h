@@ -754,6 +754,12 @@ void HTS_Engine_save_generated_parameter(HTS_Engine * engine, HTS_File * fp, int
 /* HTS_Engine_save_generated_speech: output generated speech */
 void HTS_Engine_save_generated_speech(HTS_Engine * engine, HTS_File * fp);
 
+/* HTS_Engine_get_generated_speech_size: obtain generated speech size */
+unsigned int HTS_Engine_get_generated_speech_size(HTS_Engine * engine);
+
+/* HTS_Engine_get_generated_speech: obtain generated speech */
+void HTS_Engine_get_generated_speech(HTS_Engine * engine, short * buf);
+
 /* HTS_Engine_save_riff: output RIFF format file */
 void HTS_Engine_save_riff(HTS_Engine * engine, HTS_File * wavfp);
 
