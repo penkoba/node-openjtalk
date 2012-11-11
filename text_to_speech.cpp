@@ -52,6 +52,9 @@
 #include "njd_set_long_vowel.h"
 #include "njd2jpcommon.h"
 
+/* alsa player header */
+#include "play.h"
+
 /* c headers */
 #include <cstring>
 #include <cstdio>
@@ -70,7 +73,7 @@ const size_t MAXBUFLEN = 1024;
 TextToSpeech::TextToSpeech(const std::string& voice_dir_, const std::string& dic_dir, OpenJTalkParams params)
 :	voice_dir_(voice_dir_),
 	dic_dir_(dic_dir),
-	wav_filename_("__tmp__.wav"),
+	pcm_(NULL),
 	params_(params)
 {
 }
@@ -81,6 +84,9 @@ TextToSpeech::~TextToSpeech()
 	NJD_clear(&open_jtalk_.njd);
 	JPCommon_clear(&open_jtalk_.jpcommon);
 	HTS_Engine_clear(&open_jtalk_.engine);
+	play_drain(play_h_);
+	play_exit(play_h_);
+	delete[] (pcm_);
 }
 
 void TextToSpeech::initialize(
@@ -161,7 +167,7 @@ void TextToSpeech::load(
 			const_cast<char *>(fn_gv_switch));
 }
 
-void TextToSpeech::synthesis(const char *txt, FILE * wavfp)
+void TextToSpeech::synthesis(const char *txt)
 {
 	char buff[MAXBUFLEN];
 
@@ -177,6 +183,7 @@ void TextToSpeech::synthesis(const char *txt, FILE * wavfp)
 	njd2jpcommon(&open_jtalk_.jpcommon, &open_jtalk_.njd);
 	JPCommon_make_label(&open_jtalk_.jpcommon);
 	if (JPCommon_get_label_size(&open_jtalk_.jpcommon) > 2) {
+		unsigned int pcm_len;
 		HTS_Engine_load_label_from_string_list(
 			&open_jtalk_.engine,
 			JPCommon_get_label_feature(&open_jtalk_.jpcommon),
@@ -185,8 +192,10 @@ void TextToSpeech::synthesis(const char *txt, FILE * wavfp)
 		HTS_Engine_create_sstream(&open_jtalk_.engine);
 		HTS_Engine_create_pstream(&open_jtalk_.engine);
 		HTS_Engine_create_gstream(&open_jtalk_.engine);
-		if (wavfp != NULL)
-			HTS_Engine_save_riff(&open_jtalk_.engine, wavfp);
+		pcm_len = HTS_Engine_get_generated_speech_size(&open_jtalk_.engine);
+		pcm_ = new short[pcm_len];
+		HTS_Engine_get_generated_speech(&open_jtalk_.engine, pcm_);
+		play_write(play_h_, pcm_, pcm_len * sizeof(short));
 		HTS_Engine_refresh(&open_jtalk_.engine);
 	}
 	JPCommon_refresh(&open_jtalk_.jpcommon);
@@ -196,13 +205,6 @@ void TextToSpeech::synthesis(const char *txt, FILE * wavfp)
 
 void TextToSpeech::make_wav(const std::string& sentence, int fperiod)
 {
-	/* output wav file */
-	FILE *wavfp = fopen(wav_filename_.c_str(), "wb");
-	if (wavfp == NULL) {
-		fprintf(stderr, "ERROR: Getfp() in open_jtalk.c: Cannot open %s.\n", wav_filename_.c_str());
-		return;
-	}
-
 	/* sentence */
 	const char *talk_str = sentence.c_str();
 
@@ -286,48 +288,18 @@ void TextToSpeech::make_wav(const std::string& sentence, int fperiod)
 		fn_ms_lpf, fn_ts_lpf, fn_ws_lpf, num_ws_lpf, fn_ms_gvm, fn_ts_gvm,
 		fn_ms_gvl, fn_ts_gvl, fn_ms_gvf, fn_ts_gvf, fn_gv_switch);
 
+	/* init alsa player */
+	play_info_t play_info;
+	play_h_ = play_init(&play_info, "default", SND_PCM_FORMAT_S16_LE, 1,
+			    sampling_rate, audio_buff_size, 8);
+
 	/* synthesis */
-	synthesis(talk_str, wavfp);
-
-	/* free */
-	fclose(wavfp);
-}
-
-void TextToSpeech::play_wav()
-{
-	// alutの初期化
-	int alut_argc = 0;
-	char* alut_argv[] = {};
-	alutInit(&alut_argc, alut_argv);
-
-	// ソースの用意
-	ALuint buf;
-	ALenum state;
-	buf = alutCreateBufferFromFile(wav_filename_.c_str());
-	alGenSources(1, &wav_src_);
-	alSourcei(wav_src_, AL_BUFFER, buf);
-
-	alSourcePlay(wav_src_);
-
-	alGetSourcei(wav_src_, AL_SOURCE_STATE, &state);
-	while (state == AL_PLAYING) {
-		alGetSourcei(wav_src_, AL_SOURCE_STATE, &state);
-	}
-
-	// 後片付け
-	alDeleteSources(1, &wav_src_);
-	alDeleteBuffers(1, &buf);
-	alutExit();
+	synthesis(talk_str);
 }
 
 void TextToSpeech::stop()
 {
-	alSourceStop(wav_src_);
-}
-
-void TextToSpeech::remove_wav() const
-{
-	remove( wav_filename_.c_str() );
+	// to be implemented with thread
 }
 
 void TextToSpeech::talk(const std::string& str, int fperiod)
@@ -337,14 +309,10 @@ void TextToSpeech::talk(const std::string& str, int fperiod)
 
 	std::cout << str << std::endl;
 	make_wav(str, fperiod);
-	play_wav();
-	remove_wav();
 }
 
 void TextToSpeech::retalk()
 {
 	std::cout << str_ << std::endl;
 	make_wav(str_, fperiod_);
-	play_wav();
-	remove_wav();
 }

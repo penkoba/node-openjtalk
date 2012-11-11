@@ -27,8 +27,8 @@ def configure(conf):
 def build(bld):
   obj = bld.new_task_gen('cxx', 'shlib', 'node_addon')
   obj.target = 'openjtalk'
-  obj.source = 'openjtalk.cc text_to_speech.cpp'
-  obj.lib      = ['alut', 'openal']
+  obj.source = 'openjtalk.cc text_to_speech.cpp play.cc'
+  obj.lib      = ['asound']
   obj.includes = 'openjtalk/open_jtalk-1.05/ \
                   openjtalk/open_jtalk-1.05/mecab \
                   openjtalk/open_jtalk-1.05/text2mecab \

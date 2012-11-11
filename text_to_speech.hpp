@@ -50,8 +50,8 @@
 #include "jpcommon.h"
 #include "HTS_engine.h"
 
-/* openal header */
-#include <AL/alut.h>
+/* alsa player header */
+#include "play.h"
 
 /* Default Parameters */
 struct OpenJTalkParams
@@ -133,7 +133,7 @@ private:
 		const char *fn_ms_gvf, const char *fn_ts_gvf, const char *fn_gv_switch);
 
 	//! 指定したテキストを喋る wav ファイルを作成する
-	void synthesis(const char *txt, FILE * wavfp);
+	void synthesis(const char *txt);
 
 	/**
 	 * パラメタなどを整形して synthesis を実行する
@@ -142,12 +142,6 @@ private:
 	 */
 	//!
 	void make_wav(const std::string& sentence, const int fperiod);
-
-	//! wav ファイルを再生する
-	void play_wav();
-
-	//! wav ファイルを削除する
-	void remove_wav() const;
 
 	//! パラメータ
 	OpenJTalkParams params_;
@@ -158,11 +152,11 @@ private:
 	//! 辞書が入ったディレクトリ
 	std::string dic_dir_;
 
-	//! 出力wavファイル名
-	const std::string wav_filename_;
+	//! alsa plyer handle
+	play_handle_t play_h_;
 
-	//! 再生中の wav
-	ALuint wav_src_;
+	//! pcm buffer
+	short *pcm_;
 
 	//! 前回喋った時の言葉
 	std::string str_;
