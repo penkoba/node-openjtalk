@@ -125,15 +125,15 @@ private:
 
 	//! 必要なファイル群をロードする（open_jtalk.c より抜粋）
 	void load(
-		char *dn_mecab, char *fn_ms_dur, char *fn_ts_dur,
-		char *fn_ms_mgc, char *fn_ts_mgc, char **fn_ws_mgc, int num_ws_mgc,
-		char *fn_ms_lf0, char *fn_ts_lf0, char **fn_ws_lf0, int num_ws_lf0,
-		char *fn_ms_lpf, char *fn_ts_lpf, char **fn_ws_lpf, int num_ws_lpf,
-		char *fn_ms_gvm, char *fn_ts_gvm, char *fn_ms_gvl, char *fn_ts_gvl,
-		char *fn_ms_gvf, char *fn_ts_gvf, char *fn_gv_switch);
+		const char *dn_mecab, const char *fn_ms_dur, const char *fn_ts_dur,
+		const char *fn_ms_mgc, const char *fn_ts_mgc, const char **fn_ws_mgc, int num_ws_mgc,
+		const char *fn_ms_lf0, const char *fn_ts_lf0, const char **fn_ws_lf0, int num_ws_lf0,
+		const char *fn_ms_lpf, const char *fn_ts_lpf, const char **fn_ws_lpf, int num_ws_lpf,
+		const char *fn_ms_gvm, const char *fn_ts_gvm, const char *fn_ms_gvl, const char *fn_ts_gvl,
+		const char *fn_ms_gvf, const char *fn_ts_gvf, const char *fn_gv_switch);
 
 	//! 指定したテキストを喋る wav ファイルを作成する
-	void synthesis(char *txt, FILE * wavfp);
+	void synthesis(const char *txt, FILE * wavfp);
 
 	/**
 	 * パラメタなどを整形して synthesis を実行する

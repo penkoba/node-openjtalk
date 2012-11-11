@@ -105,42 +105,63 @@ void TextToSpeech::initialize(
 }
 
 void TextToSpeech::load(
-	char *dn_mecab, char *fn_ms_dur, char *fn_ts_dur,
-	char *fn_ms_mgc, char *fn_ts_mgc, char **fn_ws_mgc, int num_ws_mgc,
-	char *fn_ms_lf0, char *fn_ts_lf0, char **fn_ws_lf0, int num_ws_lf0,
-	char *fn_ms_lpf, char *fn_ts_lpf, char **fn_ws_lpf, int num_ws_lpf,
-	char *fn_ms_gvm, char *fn_ts_gvm, char *fn_ms_gvl, char *fn_ts_gvl,
-	char *fn_ms_gvf, char *fn_ts_gvf, char *fn_gv_switch)
+	const char *dn_mecab, const char *fn_ms_dur, const char *fn_ts_dur,
+	const char *fn_ms_mgc, const char *fn_ts_mgc, const char **fn_ws_mgc, int num_ws_mgc,
+	const char *fn_ms_lf0, const char *fn_ts_lf0, const char **fn_ws_lf0, int num_ws_lf0,
+	const char *fn_ms_lpf, const char *fn_ts_lpf, const char **fn_ws_lpf, int num_ws_lpf,
+	const char *fn_ms_gvm, const char *fn_ts_gvm, const char *fn_ms_gvl, const char *fn_ts_gvl,
+	const char *fn_ms_gvf, const char *fn_ts_gvf, const char *fn_gv_switch)
 {
-	Mecab_load(&open_jtalk_.mecab, dn_mecab);
-	HTS_Engine_load_duration_from_fn(&open_jtalk_.engine, &fn_ms_dur, &fn_ts_dur, 1);
-	HTS_Engine_load_parameter_from_fn(&open_jtalk_.engine, &fn_ms_mgc, &fn_ts_mgc, fn_ws_mgc, 0, FALSE, num_ws_mgc, 1);
-	HTS_Engine_load_parameter_from_fn(&open_jtalk_.engine, &fn_ms_lf0, &fn_ts_lf0, fn_ws_lf0, 1, TRUE, num_ws_lf0, 1);
+	Mecab_load(&open_jtalk_.mecab, const_cast<char *>(dn_mecab));
+	HTS_Engine_load_duration_from_fn(&open_jtalk_.engine,
+		const_cast<char **>(&fn_ms_dur),
+		const_cast<char **>(&fn_ts_dur), 1);
+	HTS_Engine_load_parameter_from_fn(&open_jtalk_.engine,
+		const_cast<char **>(&fn_ms_mgc),
+		const_cast<char **>(&fn_ts_mgc),
+		const_cast<char **>(fn_ws_mgc), 0, FALSE, num_ws_mgc, 1);
+	HTS_Engine_load_parameter_from_fn(&open_jtalk_.engine,
+		const_cast<char **>(&fn_ms_lf0),
+		const_cast<char **>(&fn_ts_lf0),
+		const_cast<char **>(fn_ws_lf0), 1, TRUE, num_ws_lf0, 1);
 	if (HTS_Engine_get_nstream(&open_jtalk_.engine) == 3)
-		HTS_Engine_load_parameter_from_fn(&open_jtalk_.engine, &fn_ms_lpf, &fn_ts_lpf, fn_ws_lpf, 2, FALSE, num_ws_lpf, 1);
+		HTS_Engine_load_parameter_from_fn(&open_jtalk_.engine,
+			const_cast<char **>(&fn_ms_lpf),
+			const_cast<char **>(&fn_ts_lpf),
+			const_cast<char **>(fn_ws_lpf), 2, FALSE, num_ws_lpf, 1);
 	if (fn_ms_gvm != NULL) {
 		if (fn_ts_gvm != NULL)
-			HTS_Engine_load_gv_from_fn(&open_jtalk_.engine, &fn_ms_gvm, &fn_ts_gvm, 0, 1);
+			HTS_Engine_load_gv_from_fn(&open_jtalk_.engine,
+				const_cast<char **>(&fn_ms_gvm),
+				const_cast<char **>(&fn_ts_gvm), 0, 1);
 		else
-			HTS_Engine_load_gv_from_fn(&open_jtalk_.engine, &fn_ms_gvm, NULL, 0, 1);
+			HTS_Engine_load_gv_from_fn(&open_jtalk_.engine,
+				const_cast<char **>(&fn_ms_gvm), NULL, 0, 1);
 	}
 	if (fn_ms_gvl != NULL) {
 		if (fn_ts_gvl != NULL)
-			HTS_Engine_load_gv_from_fn(&open_jtalk_.engine, &fn_ms_gvl, &fn_ts_gvl, 1, 1);
+			HTS_Engine_load_gv_from_fn(&open_jtalk_.engine,
+				const_cast<char **>(&fn_ms_gvl),
+				const_cast<char **>(&fn_ts_gvl), 1, 1);
 		else
-			HTS_Engine_load_gv_from_fn(&open_jtalk_.engine, &fn_ms_gvl, NULL, 1, 1);
+			HTS_Engine_load_gv_from_fn(&open_jtalk_.engine,
+				const_cast<char **>(&fn_ms_gvl), NULL, 1, 1);
 	}
 	if (HTS_Engine_get_nstream(&open_jtalk_.engine) == 3 && fn_ms_gvf != NULL) {
 		if (fn_ts_gvf != NULL)
-			HTS_Engine_load_gv_from_fn(&open_jtalk_.engine, &fn_ms_gvf, &fn_ts_gvf, 2, 1);
+			HTS_Engine_load_gv_from_fn(&open_jtalk_.engine,
+				const_cast<char **>(&fn_ms_gvf),
+				const_cast<char **>(&fn_ts_gvf), 2, 1);
 		else
-			HTS_Engine_load_gv_from_fn(&open_jtalk_.engine, &fn_ms_gvf, NULL, 2, 1);
+			HTS_Engine_load_gv_from_fn(&open_jtalk_.engine,
+				const_cast<char **>(&fn_ms_gvf), NULL, 2, 1);
 	}
 	if (fn_gv_switch != NULL)
-		HTS_Engine_load_gv_switch_from_fn(&open_jtalk_.engine, fn_gv_switch);
+		HTS_Engine_load_gv_switch_from_fn(&open_jtalk_.engine,
+			const_cast<char *>(fn_gv_switch));
 }
 
-void TextToSpeech::synthesis(char *txt, FILE * wavfp)
+void TextToSpeech::synthesis(const char *txt, FILE * wavfp)
 {
 	char buff[MAXBUFLEN];
 
@@ -175,9 +196,6 @@ void TextToSpeech::synthesis(char *txt, FILE * wavfp)
 
 void TextToSpeech::make_wav(const std::string& sentence, int fperiod)
 {
-	/* file name buffer size */
-	const size_t FILE_NAME_BUF_SIZE = 128;
-
 	/* output wav file */
 	FILE *wavfp = fopen(wav_filename_.c_str(), "wb");
 	if (wavfp == NULL) {
@@ -186,48 +204,66 @@ void TextToSpeech::make_wav(const std::string& sentence, int fperiod)
 	}
 
 	/* sentence */
-	char talk_str[FILE_NAME_BUF_SIZE]; strcpy(talk_str, sentence.c_str());
+	const char *talk_str = sentence.c_str();
 
 	/* directory name of dictionary */
-	char dn_mecab[FILE_NAME_BUF_SIZE]; strcpy(dn_mecab, dic_dir_.c_str());
+	const char *dn_mecab = dic_dir_.c_str();
 
 	/* file names of models */
-	char fn_ms_dur[FILE_NAME_BUF_SIZE]; strcpy(fn_ms_dur, (voice_dir_ + "/dur.pdf").c_str());
-	char fn_ms_mgc[FILE_NAME_BUF_SIZE]; strcpy(fn_ms_mgc, (voice_dir_ + "/mgc.pdf").c_str());
-	char fn_ms_lf0[FILE_NAME_BUF_SIZE]; strcpy(fn_ms_lf0, (voice_dir_ + "/lf0.pdf").c_str());
-	char *fn_ms_lpf = NULL;
+	std::string fn_ms_dur_str = voice_dir_ + "/dur.pdf";
+	std::string fn_ms_mgc_str = voice_dir_ + "/mgc.pdf";
+	std::string fn_ms_lf0_str = voice_dir_ + "/lf0.pdf";
+	const char *fn_ms_dur = fn_ms_dur_str.c_str();
+	const char *fn_ms_mgc = fn_ms_mgc_str.c_str();
+	const char *fn_ms_lf0 = fn_ms_lf0_str.c_str();
+	const char *fn_ms_lpf = NULL;
 
 	/* file names of trees */
-	char fn_ts_dur[FILE_NAME_BUF_SIZE]; strcpy(fn_ts_dur, (voice_dir_ + "/tree-dur.inf").c_str());
-	char fn_ts_mgc[FILE_NAME_BUF_SIZE]; strcpy(fn_ts_mgc, (voice_dir_ + "/tree-mgc.inf").c_str());
-	char fn_ts_lf0[FILE_NAME_BUF_SIZE]; strcpy(fn_ts_lf0, (voice_dir_ + "/tree-lf0.inf").c_str());
-	char *fn_ts_lpf = NULL;
+	std::string fn_ts_dur_str = voice_dir_ + "/tree-dur.inf";
+	std::string fn_ts_mgc_str = voice_dir_ + "/tree-mgc.inf";
+	std::string fn_ts_lf0_str = voice_dir_ + "/tree-lf0.inf";
+	const char *fn_ts_dur = fn_ts_dur_str.c_str();
+	const char *fn_ts_mgc = fn_ts_mgc_str.c_str();
+	const char *fn_ts_lf0 = fn_ts_lf0_str.c_str();
+	const char *fn_ts_lpf = NULL;
 
 	/* file names of windows */
 	const int FN_WS_BUF_SIZE = 3;
-	char **fn_ws_mgc = new char*[FN_WS_BUF_SIZE];
-	char **fn_ws_lf0 = new char*[FN_WS_BUF_SIZE];
+	std::string fn_ws_mgc_str[FN_WS_BUF_SIZE];
+	std::string fn_ws_lf0_str[FN_WS_BUF_SIZE];
+	const char *fn_ws_mgc[FN_WS_BUF_SIZE];
+	const char *fn_ws_lf0[FN_WS_BUF_SIZE];
 	for (int i = 0; i < FN_WS_BUF_SIZE; ++i) {
-		fn_ws_mgc[i] = new char[FILE_NAME_BUF_SIZE];
-		fn_ws_lf0[i] = new char[FILE_NAME_BUF_SIZE];
-		sprintf(fn_ws_mgc[i], (voice_dir_ + "/mgc.win%d").c_str(), i+1);
-		sprintf(fn_ws_lf0[i], (voice_dir_ + "/lf0.win%d").c_str(), i+1);
+		std::stringstream ss1;
+		ss1 << voice_dir_ << "/mgc.win" << i + 1;
+		fn_ws_mgc_str[i] = ss1.str();
+		fn_ws_mgc[i] = fn_ws_mgc_str[i].c_str();
+
+		std::stringstream ss2;
+		ss2 << voice_dir_ << "/lf0.win" << i + 1;
+		fn_ws_lf0_str[i] = ss2.str();
+		fn_ws_lf0[i] = fn_ws_lf0_str[i].c_str();
 	}
-	char **fn_ws_lpf = NULL;
+	const char **fn_ws_lpf = NULL;
 	int num_ws_mgc = FN_WS_BUF_SIZE, num_ws_lf0 = FN_WS_BUF_SIZE, num_ws_lpf = 0;
 
 	/* file names of global variance */
-	char fn_ms_gvm[FILE_NAME_BUF_SIZE]; strcpy(fn_ms_gvm, (voice_dir_ + "/gv-mgc.pdf").c_str());
-	char fn_ms_gvf[FILE_NAME_BUF_SIZE]; strcpy(fn_ms_gvf, (voice_dir_ + "/gv-lf0.pdf").c_str());
-	char *fn_ms_gvl = NULL;
+	std::string fn_ms_gvm_str = voice_dir_ + "/gv-mgc.pdf";
+	std::string fn_ms_gvf_str = voice_dir_ + "/gv-lf0.pdf";
+	const char *fn_ms_gvm = fn_ms_gvm_str.c_str();
+	const char *fn_ms_gvf = fn_ms_gvf_str.c_str();
+	const char *fn_ms_gvl = NULL;
 
 	/* file names of global variance trees */
-	char fn_ts_gvm[FILE_NAME_BUF_SIZE]; strcpy(fn_ts_gvm, (voice_dir_ + "/tree-gv-mgc.inf").c_str());
-	char fn_ts_gvf[FILE_NAME_BUF_SIZE]; strcpy(fn_ts_gvf, (voice_dir_ + "/tree-gv-lf0.inf").c_str());
-	char *fn_ts_gvl = NULL;
+	std::string fn_ts_gvm_str = voice_dir_ + "/tree-gv-mgc.inf";
+	std::string fn_ts_gvf_str = voice_dir_ + "/tree-gv-lf0.inf";
+	const char *fn_ts_gvm = fn_ts_gvm_str.c_str();
+	const char *fn_ts_gvf = fn_ts_gvf_str.c_str();
+	const char *fn_ts_gvl = NULL;
 
 	/* file names of global variance switch */
-	char fn_gv_switch[FILE_NAME_BUF_SIZE]; strcpy(fn_gv_switch, (voice_dir_ + "/gv-switch.inf").c_str());
+	std::string fn_gv_switch_str = voice_dir_ + "/gv-switch.inf";
+	const char *fn_gv_switch = fn_gv_switch_str.c_str();
 
 	/* global parameter */
 	int    sampling_rate   = params_.sampling_rate;
