@@ -1,0 +1,10 @@
+*.o
+/config.log
+/config.status
+/Makefile
+/bin/.deps/
+/bin/Makefile
+/bin/hts_engine
+/lib/.deps/
+/lib/Makefile
+/lib/libHTSEngine.a
