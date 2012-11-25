@@ -1,0 +1,10 @@
+extends layout
+
+block content
+  script(src='/socket.io/socket.io.js')
+  script(src='/javascripts/talk.js')
+  input(id="readbtn", type="file")
+  br
+  textarea(id="droparea", rows="10", cols="80")
+  br
+  button(onclick='javascript:talkArea()') talk
