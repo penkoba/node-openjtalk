@@ -22,10 +22,10 @@ textareaの内容を話します。
 ファイルボタンからの読み込みおよびdrag&dropにも対応。
 
 生成手順メモ:
-mkdir drop_n_talk
+express install drop_n_talk
 cd drop_n_talk
-express drop_n_talk
-npm install express socket.io
+npm install
+npm install socket.io
 app.js を drop_n_talk.js にリネーム後、内容変更
 views/index.jade 変更
 public/javascripts/talk.js を新規実装
